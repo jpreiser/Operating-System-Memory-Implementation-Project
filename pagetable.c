@@ -3,20 +3,31 @@
 #include "vm.h"
 #include "API.h"
 #include "list.h"
+#include "clock_list.h"
+
+int i = -1;
+struct Node *head = NULL;
+struct ClockNode *clockHead = NULL;
 
 int fifo()
 {
-		return 0;
+		i++;
+		return i % MAX_PFN;
 }
 
 int lru()
 {
-		return 0;
+		return head->data;
 }
 
 int clock()
 {
-		return 0;
+		while(clockHead->ref == 1) {
+			int p = clockHead->ref;
+			clockHead = cl_remove_head(clockHead);
+			clockHead = cl_insert_tail(clockHead, p, 0);
+		}
+		return clockHead->data;
 }
 
 /*========================================================================*/
@@ -40,12 +51,30 @@ int pagefault_handler(int pid, int VPN, char reqType)
 		PFN = get_freeframe();
 		
 		// no free frame available. find a victim using a page replacement algorithm. ;
-		if(PFN < 0) {
-				PFN = find_replacement();
-				/* ---- */
+		if(PFN < 0) 
+		{
+			PFN = find_replacement();
+
+			if (replacementPolicy == LRU) 
+			{
+				head = list_remove_head(head);
+			} 
+			else if (replacementPolicy == CLOCK) 
+			{
+				clockHead = cl_remove_head(clockHead);
+			}
+
+			IPTE ipte = read_IPTE(PFN);
+			PTE pte = read_PTE(ipte.pid, ipte.VPN);
+			swap_out(ipte.pid, ipte.VPN, pte.PFN);
+			pte.valid = false;
+			write_PTE(ipte.pid, ipte.VPN, pte);
 		}
 		
-		/* ---- */
+		if (replacementPolicy == LRU) 
+		{
+
+		}
 		return PFN;
 }
 
@@ -73,10 +102,9 @@ int MMU(int pid, int virtAddr, char reqType, bool *hit)
 		int PFN, physicalAddr;
 		int VPN = 0, offset = 0;
 		
-		/* calculate VPN and offset
-		VPN = ...
-		offset = ...
-		*/
+		/* calculate VPN and offset */
+		VPN = (virtAddr >> 8);
+		offset = virtAddr - (VPN << 8);
 		
 		// read page table to get Physical Frame Number (PFN)
 		PFN = get_PFN(pid, VPN, reqType);
