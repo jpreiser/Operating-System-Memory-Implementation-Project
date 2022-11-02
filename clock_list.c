@@ -43,8 +43,8 @@ struct ClockNode *cl_remove(struct ClockNode *head, int data)
 
 		while(ret != NULL) {
 				if(data == ret->data) {
-						if(ret == head) return clock_list_remove_head(head);
-						if(ret->next == NULL) return clock_list_remove_tail(head);
+						if(ret == head) return cl_remove_head(head);
+						if(ret->next == NULL) return cl_remove_tail(head);
 						if(ret->prev) ret->prev->next = ret->next;
 						if(ret->next) ret->next->prev = ret->prev;
 						return head;
@@ -55,7 +55,7 @@ struct ClockNode *cl_remove(struct ClockNode *head, int data)
 }
 
 struct ClockNode *cl_insert_head(struct ClockNode *head, int x, int ref) {
-		struct ClockNode* newClockNode = clock_list_new_node(x, ref);
+		struct ClockNode* newClockNode = cl_new_node(x, ref);
 		if(head == NULL) 
         {
 				head = newClockNode;
@@ -70,7 +70,7 @@ struct ClockNode *cl_insert_head(struct ClockNode *head, int x, int ref) {
 
 struct ClockNode *cl_insert_tail(struct ClockNode *head, int x, int ref) {
 		struct ClockNode* temp = head;
-		struct ClockNode* newClockNode = clock_list_new_node(x, ref);
+		struct ClockNode* newClockNode = cl_new_node(x, ref);
 		if(head == NULL) 
         {
 				head = newClockNode;
