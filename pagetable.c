@@ -2,8 +2,9 @@
 #include <stdlib.h>
 #include "vm.h"
 #include "API.h"
-#include "list.h"
 #include "clock_list.h"
+#include "list.h"
+
 
 int i = -1;
 struct Node *head = NULL;
