@@ -50,6 +50,7 @@ int pagefault_handler(int pid, int VPN, char reqType)
 
 		// find a free PFN.
 		PFN = get_freeframe();
+		printf("PFN: %d\n", PFN);
 		
 		// no free frame available. find a victim using a page replacement algorithm. ;
 		if(PFN < 0) 
@@ -106,7 +107,6 @@ int MMU(int pid, int virtAddr, char reqType, bool *hit)
 		/* calculate VPN and offset */
 		VPN = (virtAddr >> 8);
 		offset = virtAddr - (VPN << 8);
-		printf("VPN: %d, offset: %d\n", VPN, offset);
 		
 		// read page table to get Physical Frame Number (PFN)
 		PFN = get_PFN(pid, VPN, reqType);
