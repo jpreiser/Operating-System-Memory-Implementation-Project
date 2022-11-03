@@ -106,6 +106,7 @@ int MMU(int pid, int virtAddr, char reqType, bool *hit)
 		/* calculate VPN and offset */
 		VPN = (virtAddr >> 8);
 		offset = virtAddr - (VPN << 8);
+		printf("VPN: %d, offset: %d\n", VPN, offset);
 		
 		// read page table to get Physical Frame Number (PFN)
 		PFN = get_PFN(pid, VPN, reqType);
