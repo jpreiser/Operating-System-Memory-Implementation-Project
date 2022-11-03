@@ -50,7 +50,6 @@ int pagefault_handler(int pid, int VPN, char reqType)
 
 		// find a free PFN.
 		PFN = get_freeframe();
-		printf("PFN: %d\n", PFN);
 		
 		// no free frame available. find a victim using a page replacement algorithm. ;
 		if(PFN < 0) 
@@ -75,8 +74,29 @@ int pagefault_handler(int pid, int VPN, char reqType)
 		
 		if (replacementPolicy == LRU) 
 		{
-
+			head = list_insert_tail(head, PFN);
+		} else if (replacementPolicy == CLOCK) 
+		{
+			clockHead = cl_insert_tail(clockHead, PFN, 0);
 		}
+
+		IPTE ipte = read_IPTE(PFN);
+		PTE pte = read_PTE(ipte.pid, ipte.VPN);
+
+		if (reqType == 'W') {
+			pte.dirty = true;
+		} else if (reqType == 'R') {
+			pte.dirty = false;
+		}
+
+		swap_in(pid, VPN, PFN);
+		ipte.pid = pid;
+		ipte.VPN = VPN;
+		write_IPTE(PFN, ipte);
+		pte.valid = true;
+		pte.PFN = PFN;
+		write_PTE(pid, VPN, pte);
+
 		return PFN;
 }
 
@@ -107,6 +127,7 @@ int MMU(int pid, int virtAddr, char reqType, bool *hit)
 		/* calculate VPN and offset */
 		VPN = (virtAddr >> 8);
 		offset = virtAddr - (VPN << 8);
+
 		
 		// read page table to get Physical Frame Number (PFN)
 		PFN = get_PFN(pid, VPN, reqType);
