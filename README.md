@@ -1,6 +1,3 @@
-cs4730_assignment3
-Jacob Reiser
-
 I implemented a copy of the list with a clockNode structure to keep track of whether
 or not a page was dirty or not. It is basically a copy of the list.c and list.h files
 with only that change for use with the clock method. 
